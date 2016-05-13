@@ -28,7 +28,7 @@ connSock.connect((serverAddr, serverPort))
 bytesSent = 0
 
 #size of socket client will be recieving
-socketSIze = 1024
+socketSize = 1024
 
 # Keep sending until all is sent
 while True:
@@ -42,7 +42,7 @@ while True:
 		# and convert it to string
 		bytesSent += connSock.send(cmd[bytesSent:])
 		print bytesSent
-
+	bytesSent = 0
 	# Accept connections
 	#servSock, addr = welcomeSock.accept()
 
