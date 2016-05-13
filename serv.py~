@@ -69,8 +69,8 @@ while True:
 		# Retreive the ephemeral port number
 		print "I chose ephemeral port: ", dataSocket.getsockname()[1]
 
-		# Close dataSocket
-		dataSocket.close()
+	# Close dataSocket
+	dataSocket.close()
 
 	# The buffer to all data received from the
 	# the client.
