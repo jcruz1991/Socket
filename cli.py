@@ -41,7 +41,7 @@ def main():
 		dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		dataSock.bind(('',0))
 		
-		portNum_and_command = str(dataSock.getsockname()[serverAddress]) + data
+		portNum_and_command = str(dataSock.getsockname()[serverAddr]) + data
 
 		connSock.send(portNum_and_command)
 		dataSock.listen(1)						
