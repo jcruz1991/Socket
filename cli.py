@@ -7,50 +7,90 @@
 import socket
 import os
 import sys
+import subprocess 
 
-# Command line checks
-if len(sys.argv) < 2:
-	print "USAGE python " + sys.argv[0] + " <FILE NAME>"
+def main():
+	# Command line checks
+	if len(sys.argv) < 2:
+		print "USAGE python " + sys.argv[0] + " <FILE NAME>"
 
-# Server address
-serverAddr = sys.argv[1]
+	# Server address
+	serverAddr = sys.argv[1]
 
-# Server port
-serverPort = int(sys.argv[2])
+	# Server port
+	serverPort = int(sys.argv[2])
 
-# Create a TCP socket
-connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	# Create a TCP socket
+	connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to the server
-connSock.connect((serverAddr, serverPort))
+	# Connect to the server
+	connSock.connect((serverAddr, serverPort))
 
-# The number of bytes sent
-bytesSent = 0
-
-#size of socket client will be recieving
-socketSize = 1024
-
-# Keep sending until all is sent
-while True:
-
-	# FTP raw input
-	cmd = raw_input("ftp> ")
-
-	# Make sure we did not hit EOF
-	while len(cmd) > bytesSent:
-		# Get the size of the data read
-		# and convert it to string
-		bytesSent += connSock.send(cmd[bytesSent:])
-		print bytesSent
+	# The number of bytes sent
 	bytesSent = 0
-	# Accept connections
-	#servSock, addr = welcomeSock.accept()
 
-	#recieve content from server
-	#data = revc(sockSize)
+	#size of socket client will be recieving
+	socketSize = 1024
 
-#print "Sent ", bytesSent, " bytes."
+	print("Commands: get <FILE NAME>, put <FILE NAME>, ls, lls, quit")
+	# FTP raw input
+	cmd = raw_input("ftp> ")	
+	
+	while cmd != "quit":
 
-# Close the socket and the file
-connSock.close()
-#SfileObj.close()
+		dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		dataSock.bind("",0)
+		
+		portNum_and_command = str(dataSock.getsockname()[serverAddress]) + data
+
+		connSock.send(portNum_and_command)
+		dataSock.listen(1)						
+		
+		dataConnection, address = dataSock.accept()			
+
+		if(cmd == "get"):
+			fileData = ""
+			rcvBuff = ""
+			fileSize = 0
+			fSizeBuffer = (dataConnection, 10)
+			fileSize = int(fSizeBuffer)
+
+			print("The size of the received file is: ", fileSize)
+			
+			fileData = receiveFile(dataConnection, fileSize)
+			print("The file name is: " + cmd[4:])
+
+			file = open(data[4:], "w")
+			file.write(fileData)			
+			file.close()
+
+		#elif(cmd == "put"):
+			
+		elif(cmd == "ls"):
+			serverData = dataConnection.recv(9000)	
+			print(serverData)
+
+		#elif(cmd == "lls"):
+			
+		elif(cmd == "quit"):
+			# Close the socket and the file
+			connSock.close()
+
+		else:
+			dataSock.cloe()
+			print(" ")
+			print("Commands: get <FILE NAME>, put <FILE NAME>, ls, lls, quit")
+			cmd = raw_input("ftp> ")
+			
+			
+
+		# Make sure we did not hit EOF
+		while len(cmd) > bytesSent:
+			# Get the size of the data read
+			# and convert it to string
+			bytesSent += connSock.send(cmd[bytesSent:])
+			print bytesSent
+		bytesSent = 0
+	
+if __name__ == '__main__':
+	main()
