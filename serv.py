@@ -1,4 +1,4 @@
-# *****************************************************
+ # *****************************************************
 # This file implements a server for receiving the file
 # sent using sendfile(). The server receives a file and
 # prints it's contents.
@@ -95,7 +95,7 @@ def main():
 		print "Accepted connection from client: ", addr
 		print "\n"
 		while True:
-			data = clientSock.revc(1024)
+			data = clientSock.recv(1024)
 			if data[0:2] == "ls":
 				#CREATING A NEW DATA CONNECTION FOR DATA TRANSFER
 				ephemeralSocket = int(data[3:])
@@ -156,5 +156,6 @@ def main():
 		# Close our side
 		clientSock.close()
 
+#Open main file first
 if __name__ == '__main__':
 	main()
