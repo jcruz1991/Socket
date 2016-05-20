@@ -106,7 +106,7 @@ def main():
 				#Connection
 				dataSocket.connect(("localhost", ephemeralSocket))
 				#Gets output for ls
-				data = commands.getstatusoutput('ls')
+				data = subprocess.check_output(["ls"])
 				#Sends back to client
 				dataSocket.send(info)
 				#Close socket
