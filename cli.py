@@ -33,13 +33,13 @@ def main():
 	socketSize = 1024
 
 	print("Commands: get <FILE NAME>, put <FILE NAME>, ls, lls, quit")
-	# FTP raw input
+	# FTP raw inputs
 	cmd = raw_input("ftp> ")	
 	
 	while cmd != "quit":
 
 		dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		dataSock.bind("",0)
+		dataSock.bind(('',0))
 		
 		portNum_and_command = str(dataSock.getsockname()[serverAddress]) + data
 
