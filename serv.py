@@ -102,7 +102,7 @@ def main():
 				# Create a socket
 				dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				# Bind the socket to port 0
-				dataSocket.bind(('',0))
+				#dataSocket.bind(('',0))
 				#Connection
 				dataSocket.connect(("localhost", ephemeralSocket))
 				#Gets output for ls
