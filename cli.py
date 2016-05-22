@@ -1,90 +1,68 @@
-# *******************************************************************
-# This file illustrates how to send a file using an
-# application-level protocol where the first 10 bytes
-# of the message from client to server contain the file
-# size and the rest contain the file data.
-# *******************************************************************
 import socket
 import os
 import sys
-import subprocess 
 
-def main():
-	# Command line checks
-	if len(sys.argv) < 2:
-		print "USAGE python " + sys.argv[0] + " <FILE NAME>"
+if (len(sys.argv) < 2):
+	print "Usage python " + sys.argv[0] + "<FILE NAME>"
 
-	# Server address
-	serverAddr = sys.argv[1]
+#Server addres
+serverAddr = sys.argv[1]
 
-	# Server port
-	serverPort = int(sys.argv[2])
+#Server port
+serverPort = sys.argv[2]
 
-	# Create a TCP socket
-	connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#Create a TCP Socket
+connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-	# Connect to the server
-	connSock.connect((serverAddr, serverPort))
+#Connect to the server
+connSock.connect((serverAddr, int(serverPort)))
 
-	# The number of bytes sent
-	bytesSent = 0
 
-	#size of socket client will be recieving
-	socketSize = 1024
+print "Use commands: ls, get <FILE NAME>, put <FILE NAME>, or quit" 
+print "\n"
+cmd = raw_input("<ftp> ")
+
+
+
+while (cmd == "get" or cmd == "put" or cmd == "ls" or cmd == "lls"):
 	
-	print("")
-	print("Commands: get <FILE NAME>, put <FILE NAME>, ls, lls, quit")
-	# FTP raw inputs
-	cmd = raw_input("ftp> ")	
-	
-	while cmd != "quit":
+	cmdSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-		dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		dataSock.bind(('',0))
+	# Bind the socket to port 0
+	cmdSocket.bind(('',0))
+
+	# Retreive the ephemeral port number
+	ephemeralPort = cmdSocket.getsockname()[1]
+	print "\n"
 		
-
-		if(cmd == "get"):
-			fileData = ""
-			rcvBuff = ""
-			fileSize = 0
-			fSizeBuffer = (dataConnection, 10)
-			fileSize = int(fSizeBuffer)
-
-			print("The size of the received file is: ", fileSize)
-			
-			fileData = receiveFile(dataConnection, fileSize)
-			print("The file name is: " + cmd[4:])
-
-			file = open(cmd[4:], "w")
-			file.write(fileData)			
-			file.close()
-
-		#elif(cmd == "put"):
-			
-		elif(cmd == "ls"):
-			portNum_and_command = cmd + " " + str(dataSock.getsockname()[1])
-
-			connSock.send(portNum_and_command)
-			dataSock.listen(1)						
+	#Concatenate user command with ephemeral port number	
+	cmdData = cmd + " " + str(ephemeralPort)
 		
-			dataConnection, address = dataSock.accept()			
+	#Send that information to server through current connection
+	connSock.send(cmdData)
 
-			serverData = dataConnection.recv(9000)	
-			print(serverData)
 
-		#elif(cmd == "lls"):
-			
-		elif(cmd == "quit"):
-			# Close the socket and the file
-			connSock.close()
-
-		else:
-			dataSock.cloe()
-			print(" ")
-			print("Commands: get <FILE NAME>, put <FILE NAME>, ls, lls, quit")
-			cmd = raw_input("ftp> ")
-			
-			
+	#if(cms == "get"):
 	
-if __name__ == '__main__':
-	main()
+	if(cmd == "ls"):
+	
+		#Listen for server's response
+		cmdSocket.listen(1)
+		
+		#Accept connection from server
+		serverSocket, addr = cmdSocket.accept()
+		print "Data transfer channel connection established. \n"
+		
+		#Server's response
+		cmdResponse = serverSocket.recv(9000)
+		print(cmdResponse)
+
+		#Close temporary data connection
+		serverSocket.close()
+				
+	cmd = raw_input("<ftp> ")
+	print "\n"
+
+
+connSock.close()
+		
