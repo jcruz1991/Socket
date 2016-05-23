@@ -7,6 +7,78 @@ import socket
 import sys
 import commands
 
+#Receives file from client
+def recvAll(sock, numBytes):
+	#Buffer for what has been received
+	recvBuff = ""
+	
+	#Used to check if no data was received
+	tempBuff = ""
+
+	#get all data
+	while len(recvBuff) < numBytes:		
+		tempBuff = sock.recv(numBytes)
+		
+		#no data was received
+		if not tempBuff:
+			break
+		
+		#add to buffer size
+		recvBuff += tempBuff
+
+	return revBuff
+
+#Sends file to client
+def sendFile(cmd, sock):
+	#local host is the server's address	
+	serverAddr = "localhost"
+	
+	#file name identified
+	fileName = cmd[1]
+	
+	#open file and get contents
+	fileObj = open(fileName, "r")
+	
+	#identify ephermeral port number
+	ephemeralPort = int(cmd[2])
+
+	#open temporary connection to socket for daa transfer
+	dataTransmitter = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	dataTransmitter.connect((serverAddr, ephemeralPort))
+
+	
+	#contents of the file
+	fileData = None
+
+	while True:
+		#used to count how much of the data has been sent
+		numSent = 0	
+		
+		#grab the of the file
+		fileData = fileObj.read(8000)
+		
+		#if not empty		
+		if fileData:
+			#get size of the file
+			fileSize = str(len(fileData))
+			
+			#convert to base 8??????????????????			
+			while len(fileSize) < 10:
+				fileSize = "0" + fileSize
+			
+			#get file content converted into base 8??????????
+			fileData = fileSize + fileData
+
+			#send file information to client
+			while len(fileData) > numSent:
+				numSent += dataTransmitter.send(fileData[numSent:])
+		else:
+			break
+
+	#close the connection used to transfer data
+	dataTransmitter.close()
+
+
 #Throw flag if user does not send two arguments
 if len(sys.argv) != 2:
 	print "USAGE: python " + sys.argv[0] + " <Server Port>"
@@ -49,7 +121,11 @@ while True:
 		
 		#Client specified "get"		
 		if(cmd[0] == "get"):
-			print "get"
+			
+			#send file to client
+			sendFile(cmd, clientSock)
+
+			print "Query processed \n"
 
 		#Client specified "put"		
 		if(cmd[0] == "put"):
@@ -57,32 +133,26 @@ while True:
 	
 		#Client specified "ls"
 		if(cmd[0] == "ls"):
+			
+			#initialize ephemeral port number
 			ephemeralPort = int(cmd[1])
+
+			#open connection for data transfer
 			dataTransmitter = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			dataTransmitter.connect(("localhost", ephemeralPort))	
 
+			#get list of content in current directory
 			for line in commands.getstatusoutput('ls -l'):
 				dataTransmitter.send(str(line))
-				
+			
+			#close temporary data transfer connection
 			dataTransmitter.close()
+			print "Query processed"
 
 		#Client specified "lls"
 		if(cmd[0] == "lls"):
 			print "lls"
 
 
-def recvAll(sock, numBytes):
-	recvBuff = ""
-	
-	tempBuff = ""
-
-	while len(recvBuff) < numBytes:
-		tempBuff = sock.recv(numBytes)
-
-		if not tempBuff:
-			break
-
-		recvBuff += tempBuff
-	return revBuff
 
 
