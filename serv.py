@@ -26,7 +26,7 @@ def recvAll(sock, numBytes):
 		#add to buffer size
 		recvBuff += tempBuff
 
-	return revBuff
+	return recvBuff
 
 #Sends file to client
 def sendFile(cmd, sock):
@@ -42,7 +42,7 @@ def sendFile(cmd, sock):
 	#identify ephermeral port number
 	ephemeralPort = int(cmd[2])
 
-	#open temporary connection to socket for daa transfer
+	#open temporary connection to socket for data transfer
 	dataTransmitter = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	dataTransmitter.connect((serverAddr, ephemeralPort))
 
@@ -55,7 +55,7 @@ def sendFile(cmd, sock):
 		numSent = 0	
 		
 		#grab the of the file
-		fileData = fileObj.read(8000)
+		fileData = fileObj.read(15000)
 		
 		#if not empty		
 		if fileData:
@@ -129,8 +129,37 @@ while True:
 
 		#Client specified "put"		
 		if(cmd[0] == "put"):
-			print "put"	
-	
+			#initialize ephemeral port number
+			ephemeralPort = int(cmd[2])
+
+			#open connection for data transfer
+			dataTransmitter = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			dataTransmitter.connect(("localhost", ephemeralPort))	
+
+			#used to get content inside of the file
+			fileData = ""
+		
+			#get and print size of the file		
+			fileSize = 0
+			fileSize = int(recvAll(dataTransmitter, 10))
+			print "The size of the received file is: ", fileSize
+
+			#get contents of the file
+			fileData = recvAll(dataTransmitter, fileSize)
+		
+			#print name of the file
+			print "The name of the received file is: " + cmd[1]
+		
+			#open and write the file data
+			file = open(cmd[1], "w")
+			file.write(fileData)
+		
+			#close the file
+			file.close()
+
+			#close data temporary transfer connection
+			dataTransmitter.close()
+
 		#Client specified "ls"
 		if(cmd[0] == "ls"):
 			
